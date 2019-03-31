@@ -13,6 +13,10 @@ import android.widget.GridView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -112,7 +116,7 @@ public class MainActivity extends AppCompatActivity {
         mLoadingIndicator.setVisibility(View.INVISIBLE);
     }
 
-    public class FetchMoviesTask extends AsyncTask<String, Void, Movie[]> {
+    public class FetchMoviesTask extends AsyncTask<String, Void, Integer> {
 
         @Override
         protected void onPreExecute() {
@@ -123,103 +127,81 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
-        protected Movie[] doInBackground(String... strings) {
-            HttpURLConnection urlConnection = null;
-            BufferedReader reader = null;
-            String moviesJsonStr = null;
+        protected Integer doInBackground(String... params) {
+            Integer result = 0;
 
             try {
+                // Create Apache HttpClient
+                HttpClient httpclient = new DefaultHttpClient();
+                HttpResponse httpResponse = httpclient.execute(new HttpGet(urlString));
+                int statusCode = httpResponse.getStatusLine().getStatusCode();
 
-                if (urlString == null){
-                    Uri.Builder builder = new Uri.Builder();
-                    builder.scheme("https")
-                            .authority("api.themoviedb.org")
-                            .appendPath("3")
-                            .appendPath("movie")
-                            .appendPath("popular")
-                            .appendQueryParameter("api_key", API_KEY)
-                            .appendQueryParameter("language", "en-US")
-                            .appendQueryParameter("page", "1");
-                    urlString = builder.build().toString();
+                // 200 represents HTTP OK
+                if (statusCode == 200) {
+                    String response = streamToString(httpResponse.getEntity().getContent());
+                    parseResult(response);
+                    result = 1; // Successful
+                } else {
+                    result = 0; //"Failed
                 }
-
-                URL url = new URL(urlString);
-                // Create the request and open the connection
-                urlConnection = (HttpURLConnection) url.openConnection();
-                urlConnection.setRequestMethod("GET");
-                urlConnection.connect();
-
-                // Read the input stream into a String
-                InputStream inputStream = urlConnection.getInputStream();
-                StringBuffer buffer = new StringBuffer();
-                if (inputStream == null) {
-                    return null;
-                }
-                reader = new BufferedReader(new InputStreamReader(inputStream));
-
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    buffer.append(line + "\n");
-                }
-
-                if (buffer.length() == 0) {
-                    // Stream was empty.  No point in parsing.
-                    return null;
-                }
-
-                moviesJsonStr = buffer.toString();
-
-                try {
-
-                JSONObject movieBase = new JSONObject(moviesJsonStr);
-
-                JSONArray moviesArray = movieBase.getJSONArray("results");
-                Movie movies[] = new Movie[moviesArray.length()];
-
-                for (int i = 0; i < moviesArray.length(); ++i) {
-                    JSONObject currentMovie = moviesArray.getJSONObject(i);
-                    movies[i] = new Movie((currentMovie.getInt("id")),
-                            (currentMovie.getString("title")),
-                            (currentMovie.getString("poster_path")),
-                            (currentMovie.getString("overview")));
-                }
-                return movies;
-
-            } catch (JSONException e) {
-                    e.printStackTrace();
-                    return null;
-                }
-
-            } catch (IOException e) {
-                Log.e("PlaceholderFragment", "Error ", e);
-                // The code didn't successfully get the weather data
-                return null;
-            } finally {
-                if (urlConnection != null) {
-                    urlConnection.disconnect();
-                }
-                if (reader != null) {
-                    try {
-                        reader.close();
-                    } catch (final IOException e) {
-                        Log.e("PlaceholderFragment", "Error closing stream", e);
-                    }
-                }
+            } catch (Exception e) {
+                Log.d("getData", "error");
             }
+            return result;
         }
 
         @Override
-        protected void onPostExecute(Movie[] movies) {
+        protected void onPostExecute(Integer result) {
             mLoadingIndicator.setVisibility(View.INVISIBLE);
-            if (movies != null) {
-                ArrayList<Movie> moviesList = new ArrayList<Movie>(movies.length);
-                mGridAdapter.setGridData(moviesList);
+            if (result == 1) {
+                mGridAdapter.setGridData(mGridData);
                 showMovies();
             } else {
                 showErrorMessage();
             }
         }
-    }
+
+        String streamToString(InputStream stream) throws IOException {
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(stream));
+            String line;
+            String moviesJsonStr = "";
+            StringBuffer buffer = new StringBuffer();
+            while ((line = bufferedReader.readLine()) != null) {
+                buffer.append(line + "\n");
+            }
+            stream.close();
+
+            return moviesJsonStr;
+        }
+
+
+        private void parseResult(String moviesJsonStr) {
+            try {
+                JSONObject movieBase = new JSONObject(moviesJsonStr);
+                JSONArray moviesArray = movieBase.optJSONArray("results");
+                Movie movie;
+
+                for (int i = 0; i < moviesArray.length(); ++i) {
+                    JSONObject currentMovie = moviesArray.optJSONObject(i);
+                    movie = new Movie();
+                    int id = currentMovie.optInt("id");
+                    movie.setId(id);
+                    String title = currentMovie.optString("title");
+                    movie.setName(title);
+                    String posterPath = currentMovie.optString("poster_path");
+                    movie.setPosterPath(posterPath);
+                    String overview = currentMovie.optString("overview");
+                    movie.setPosterPath(overview);
+
+                mGridData.add(movie);
+            }
+            } catch (JSONException e) {
+                    e.printStackTrace();
+
+                }
+            }
+        }
+
 }
 
 

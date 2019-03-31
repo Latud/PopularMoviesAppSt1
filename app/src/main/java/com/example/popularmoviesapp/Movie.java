@@ -7,12 +7,16 @@ public class Movie{
     private String mPosterPath;
     private String mOverview;
 
-    public Movie(Integer id, String name, String posterPath, String overview) {
+    public Movie() {
+        super();
+    }
+
+/*    public Movie(Integer id, String name, String posterPath, String overview) {
         mId = id;
         mName = name;
         mPosterPath = posterPath;
         mOverview = overview;
-    }
+    }*/
 
     public Integer getId() {
         return mId;
