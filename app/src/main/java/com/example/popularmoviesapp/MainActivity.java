@@ -191,7 +191,7 @@ public class MainActivity extends AppCompatActivity {
                     String posterPath = currentMovie.optString("poster_path");
                     movie.setPosterPath(posterPath);
                     String overview = currentMovie.optString("overview");
-                    movie.setPosterPath(overview);
+                    movie.setOverview(overview);
 
                 mGridData.add(movie);
             }
