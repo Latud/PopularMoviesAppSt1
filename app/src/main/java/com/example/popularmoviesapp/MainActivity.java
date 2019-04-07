@@ -17,6 +17,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -57,51 +58,24 @@ public class MainActivity extends AppCompatActivity {
         mGridAdapter = new GridViewAdapter(this, R.layout.grid_item_layout, mGridData);
         mGridView.setAdapter(mGridAdapter);
 
-        new FetchMoviesTask().execute();
+        Uri.Builder builder = new Uri.Builder();
+        builder.scheme("https")
+                .authority("api.themoviedb.org")
+                .appendPath("3")
+                .appendPath("movie")
+                .appendPath("popular")
+                .appendQueryParameter("api_key", API_KEY)
+                .appendQueryParameter("language", "en-US")
+                .appendQueryParameter("page", "1");
+        urlString = builder.build().toString();
+
+        loadMoviesData();
         mLoadingIndicator.setVisibility(View.VISIBLE);
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if (id == R.id.popularSort) {
-
-            Uri.Builder builder = new Uri.Builder();
-            builder.scheme("https")
-                    .authority("api.themoviedb.org")
-                    .appendPath("3")
-                    .appendPath("movie")
-                    .appendPath("top_rated")
-                    .appendQueryParameter("api_key", API_KEY)
-                    .appendQueryParameter("language", "en-US");
-            urlString = builder.build().toString();
-
-            return true;
-        }
-
-        if (id == R.id.ratingSort) {
-
-            Uri.Builder builder = new Uri.Builder();
-            builder.scheme("https")
-                    .authority("api.themoviedb.org")
-                    .appendPath("3")
-                    .appendPath("movie")
-                    .appendPath("popular")
-                    .appendQueryParameter("api_key", API_KEY)
-                    .appendQueryParameter("language", "en-US")
-                    .appendQueryParameter("page", "1");
-            urlString = builder.build().toString();
-
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
+    private void loadMoviesData() {
+        showMovies();
+        new FetchMoviesTask().execute();
     }
 
     private void showErrorMessage() {
@@ -133,12 +107,13 @@ public class MainActivity extends AppCompatActivity {
             try {
                 // Create Apache HttpClient
                 HttpClient httpclient = new DefaultHttpClient();
-                HttpResponse httpResponse = httpclient.execute(new HttpGet(urlString));
+                String url = urlString;
+                HttpResponse httpResponse = httpclient.execute(new HttpGet(url));
                 int statusCode = httpResponse.getStatusLine().getStatusCode();
 
                 // 200 represents HTTP OK
                 if (statusCode == 200) {
-                    String response = streamToString(httpResponse.getEntity().getContent());
+                    String response = EntityUtils.toString(httpResponse.getEntity());;
                     parseResult(response);
                     result = 1; // Successful
                 } else {
@@ -174,7 +149,6 @@ public class MainActivity extends AppCompatActivity {
             return moviesJsonStr;
         }
 
-
         private void parseResult(String moviesJsonStr) {
             try {
                 JSONObject movieBase = new JSONObject(moviesJsonStr);
@@ -197,11 +171,59 @@ public class MainActivity extends AppCompatActivity {
             }
             } catch (JSONException e) {
                     e.printStackTrace();
-
                 }
             }
         }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.popularSort) {
+
+            Uri.Builder builder = new Uri.Builder();
+            builder.scheme("https")
+                    .authority("api.themoviedb.org")
+                    .appendPath("3")
+                    .appendPath("movie")
+                    .appendPath("top_rated")
+                    .appendQueryParameter("api_key", API_KEY)
+                    .appendQueryParameter("language", "en-US");
+            urlString = builder.build().toString();
+
+            loadMoviesData();
+            mLoadingIndicator.setVisibility(View.VISIBLE);
+
+            return true;
+        }
+
+        if (id == R.id.ratingSort) {
+
+            Uri.Builder builder = new Uri.Builder();
+            builder.scheme("https")
+                    .authority("api.themoviedb.org")
+                    .appendPath("3")
+                    .appendPath("movie")
+                    .appendPath("popular")
+                    .appendQueryParameter("api_key", API_KEY)
+                    .appendQueryParameter("language", "en-US")
+                    .appendQueryParameter("page", "1");
+            urlString = builder.build().toString();
+
+            loadMoviesData();
+            mLoadingIndicator.setVisibility(View.VISIBLE);
+
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 }
 
 
