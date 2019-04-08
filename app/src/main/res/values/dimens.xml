@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+    <dimen name="labelPaddingTop16dp">16dp</dimen>
+    <dimen name="labelPaddingSides16dp">16dp</dimen>
+    <dimen name="textPaddingTop8dp">8dp</dimen>
+    <dimen name="textPaddingSides8dp">8dp</dimen>
+</resources>

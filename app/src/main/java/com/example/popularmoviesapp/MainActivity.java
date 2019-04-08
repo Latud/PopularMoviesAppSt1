@@ -114,6 +114,7 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         if (id == R.id.popularSort) {
+            urlString = null;
 
             Uri.Builder builder = new Uri.Builder();
             builder.scheme("https")
@@ -132,6 +133,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if (id == R.id.ratingSort) {
+            urlString = null;
 
             Uri.Builder builder = new Uri.Builder();
             builder.scheme("https")
