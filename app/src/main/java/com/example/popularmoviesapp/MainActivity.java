@@ -64,7 +64,8 @@ public class MainActivity extends AppCompatActivity {
                 intent.putExtra("name", mGridData.get(position).getName());
                 intent.putExtra("overview", mGridData.get(position).getOverview());
                 intent.putExtra("posterPath", mGridData.get(position).getPosterPath());
-
+                intent.putExtra("voteAverage", mGridData.get(position).getVoteAverage());
+                intent.putExtra("releaseDate", mGridData.get(position).getReleaseDate());
                 startActivity(intent);
 
             }
@@ -231,6 +232,10 @@ public class MainActivity extends AppCompatActivity {
                     movie.setPosterPath(posterPath);
                     String overview = currentMovie.optString("overview");
                     movie.setOverview(overview);
+                    String voteAverage = currentMovie.optString("vote_average");
+                    movie.setVoteAverage(voteAverage);
+                    String releaseDate = currentMovie.optString("release_date");
+                    movie.setReleaseDate(releaseDate);
 
                 mGridData.add(movie);
             }

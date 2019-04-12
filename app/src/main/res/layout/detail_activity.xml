@@ -24,5 +24,13 @@
         <TextView
             android:id="@+id/overviewIv"
             style="@style/styleText" />
+
+        <TextView
+            android:id="@+id/voteAverage"
+            style="@style/styleText" />
+
+        <TextView
+            android:id="@+id/releaseDate"
+            style="@style/styleText" />
     </LinearLayout>
 </ScrollView>

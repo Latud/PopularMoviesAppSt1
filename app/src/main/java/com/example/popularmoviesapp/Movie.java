@@ -6,6 +6,9 @@ public class Movie{
     private String mName;
     private String mPosterPath;
     private String mOverview;
+    private String mVoteAverage;
+    private String mReleaseDate;
+
 
     public Movie() {
         super();
@@ -48,6 +51,22 @@ public class Movie{
 
     public void setOverview(String overview) {
         this.mOverview = overview;
+    }
+
+    public String getVoteAverage() {
+        return mVoteAverage;
+    }
+
+    public void setVoteAverage(String voteAverage) {
+        this.mVoteAverage = voteAverage;
+    }
+
+    public String getReleaseDate() {
+        return mReleaseDate;
+    }
+
+    public void setReleaseDate(String releaseDate) {
+        this.mReleaseDate = releaseDate;
     }
 
     }
