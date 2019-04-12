@@ -121,7 +121,7 @@ public class MainActivity extends AppCompatActivity {
                     .authority("api.themoviedb.org")
                     .appendPath("3")
                     .appendPath("movie")
-                    .appendPath("top_rated")
+                    .appendPath("popular")
                     .appendQueryParameter("api_key", API_KEY)
                     .appendQueryParameter("language", "en-US");
             urlString = builder.build().toString();
@@ -140,7 +140,7 @@ public class MainActivity extends AppCompatActivity {
                     .authority("api.themoviedb.org")
                     .appendPath("3")
                     .appendPath("movie")
-                    .appendPath("popular")
+                    .appendPath("top_rated")
                     .appendQueryParameter("api_key", API_KEY)
                     .appendQueryParameter("language", "en-US")
                     .appendQueryParameter("page", "1");
@@ -214,6 +214,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         private void parseResult(String moviesJsonStr) {
+            mGridData.clear();
             try {
                 JSONObject movieBase = new JSONObject(moviesJsonStr);
                 JSONArray moviesArray = movieBase.optJSONArray("results");
